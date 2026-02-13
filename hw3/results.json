@@ -1,0 +1,61 @@
+{
+  "parquet": {
+    "write_s": 26.396562375,
+    "size_bytes": 251329110,
+    "full_scan_s": 0.20170070800000062,
+    "filter_s": 2.995527790999997,
+    "found": 21841,
+    "agg_s": 3.2611675000000027,
+    "counts": {
+      "hover": 1333813,
+      "view": 1331967,
+      "purchase": 1334331,
+      "click": 1331905,
+      "signup": 1334601,
+      "scroll": 1333383
+    },
+    "read_total_s": 6.459973375000001
+  },
+  "avro": {
+    "write_s": 33.191015292,
+    "size_bytes": 328145587,
+    "full_scan_s": 13.121529625000008,
+    "filter_s": 13.393559749999994,
+    "found": 22003,
+    "agg_s": 13.994755499999997,
+    "counts": {
+      "view": 1335253,
+      "scroll": 1332759,
+      "signup": 1332764,
+      "click": 1332448,
+      "purchase": 1333386,
+      "hover": 1333390
+    },
+    "read_total_s": 40.50992220900001
+  },
+  "json": {
+    "write_s": 46.13952745899999,
+    "size_bytes": 1775975736,
+    "full_scan_s": 18.713606707999986,
+    "filter_s": 19.254521541999992,
+    "found": 21916,
+    "agg_s": 20.10320520800002,
+    "counts": {
+      "view": 1332379,
+      "scroll": 1332430,
+      "hover": 1334970,
+      "signup": 1332849,
+      "click": 1333714,
+      "purchase": 1333658
+    },
+    "read_total_s": 58.07144524999998
+  },
+  "_meta": {
+    "total_rows": 8000000,
+    "filter_date": "2025-07-20",
+    "parquet_comp": "SNAPPY",
+    "avro_codec": "snappy",
+    "json_gzip": false,
+    "workers": 4
+  }
+}
