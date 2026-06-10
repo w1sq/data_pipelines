@@ -1,0 +1,42 @@
+{
+  "snapshots": {
+    "clickhouse": {
+      "date": "2026-03-27",
+      "machine": "c6a.4xlarge",
+      "load_time_s": 312,
+      "data_size_bytes": 15251964633,
+      "queries": 43
+    },
+    "starrocks": {
+      "date": "2025-12-30",
+      "machine": "c6a.4xlarge",
+      "load_time_s": 608,
+      "data_size_bytes": 17248194076,
+      "queries": 43
+    }
+  },
+  "compared_queries": 43,
+  "ratios_starrocks_vs_clickhouse": {
+    "load_ratio": 1.948718,
+    "size_ratio": 1.130883,
+    "cold_gmean_ratio": 1.844608,
+    "hot_gmean_ratio": 1.735827,
+    "combined_ratio": 1.702948
+  },
+  "starrocks_wins": {
+    "hot_queries_faster": 11,
+    "cold_queries_faster": 13,
+    "of_total": 43
+  },
+  "method": {
+    "cold_run": "first execution of each query",
+    "hot_run": "min(second, third execution)",
+    "ratio": "StarRocks_time / ClickHouse_time (>1 => ClickHouse faster)",
+    "combined_weights": {
+      "load": 0.1,
+      "size": 0.1,
+      "cold": 0.2,
+      "hot": 0.6
+    }
+  }
+}

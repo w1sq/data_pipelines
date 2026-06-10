@@ -1,0 +1,14 @@
+scenario,benchmark,date,engine,metric,value,unit,notes,source
+lakehouse_tpcds_1tb_iceberg,StarRocks official benchmark,2026-04-10,StarRocks,total_time,368404,ms,"StarRocks 3.5, TPC-DS 1 TB on Iceberg, 5 x m6id.4xlarge, 1 warm-up + 3-run avg",https://docs.starrocks.io/docs/benchmarking/TPC_DS_Benchmarking/
+lakehouse_tpcds_1tb_iceberg,StarRocks official benchmark,2026-04-10,Trino,total_time,2552076,ms,"Trino 475, same TPC-DS 1 TB Iceberg setup",https://docs.starrocks.io/docs/benchmarking/TPC_DS_Benchmarking/
+ad_hoc_clickbench_c6a4xlarge,ClickBench snapshot,2026-03-27,ClickHouse,load_time,312,s,"Official ClickBench snapshot on c6a.4xlarge",https://github.com/ClickHouse/ClickBench/blob/main/clickhouse/results/20260327/c6a.4xlarge.json
+ad_hoc_clickbench_c6a4xlarge,ClickBench snapshot,2026-03-27,ClickHouse,data_size,15251964633,bytes,"Official ClickBench snapshot on c6a.4xlarge",https://github.com/ClickHouse/ClickBench/blob/main/clickhouse/results/20260327/c6a.4xlarge.json
+ad_hoc_clickbench_c6a4xlarge,ClickBench snapshot,2025-12-30,StarRocks,load_time,608,s,"Official ClickBench snapshot on c6a.4xlarge",https://github.com/ClickHouse/ClickBench/blob/main/starrocks/results/20251230/c6a.4xlarge.json
+ad_hoc_clickbench_c6a4xlarge,ClickBench snapshot,2025-12-30,StarRocks,data_size,17248194076,bytes,"Official ClickBench snapshot on c6a.4xlarge",https://github.com/ClickHouse/ClickBench/blob/main/starrocks/results/20251230/c6a.4xlarge.json
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,load_ratio,1.948718,x,"Computed by clickbench_metrics.py (StarRocks/ClickHouse)",local_script
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,size_ratio,1.130883,x,"Computed by clickbench_metrics.py (StarRocks/ClickHouse)",local_script
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,cold_gmean_ratio,1.844608,x,"Computed by clickbench_metrics.py (gmean over 43 queries)",local_script
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,hot_gmean_ratio,1.735827,x,"Computed by clickbench_metrics.py (gmean over 43 queries)",local_script
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,combined_ratio,1.702948,x,"Computed by clickbench_metrics.py (weighted load/size/cold/hot)",local_script
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,queries_where_starrocks_hot_faster,11,count,"Out of 43 comparable queries",local_script
+ad_hoc_clickbench_pairwise,Derived from ClickBench raw JSON,2026-06-10,StarRocks_vs_ClickHouse,queries_where_starrocks_cold_faster,13,count,"Out of 43 comparable queries",local_script
