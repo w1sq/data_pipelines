@@ -160,17 +160,6 @@ Iceberg остаётся лучшим выбором, когда к одному
 
 ---
 
-## Структура
-
-```
-hw7/
-  bench_helpers.py   # SparkSession builders, retry, замеры
-  experiments.py     # эксперименты Delta / Iceberg / Hudi
-  requirements.txt   # pyspark==3.5.1
-  results.json       # метрики реального прогона
-  report.md          # этот отчёт
-```
-
 ## Выводы
 
 1. **Concurrency:** все форматы используют OCC; конфликты решаются клиентским Retry.

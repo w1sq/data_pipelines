@@ -23,10 +23,11 @@ flowchart LR
     G4 --> S[(Search index<br/>OpenSearch / Elasticsearch)]
     G5 --> D[(Data Lake / DWH)]
 
-    T1 -. invalid .-> Q[(cp.docs.dlq.v1<br/>4 partitions<br/>delete, 30d)]
-    T2 -. invalid .-> Q
-    T3 -. invalid .-> Q
-    T4 -. invalid .-> Q
+    G1 -. invalid .-> Q[(cp.docs.dlq.v1<br/>4 partitions<br/>delete, 30d)]
+    G2 -. invalid .-> Q
+    G3 -. invalid .-> Q
+    G4 -. invalid .-> Q
+    G5 -. invalid .-> Q
 
     Q --> G6[cg-replay-recovery]
     G6 -. replay .-> T4
