@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-demo-server-script
+data:
+  prepare_datasets.py: |
+    from pathlib import Path
+
+    root = Path("/srv/data")
+    root.mkdir(parents=True, exist_ok=True)
+
+    # Корректный датасет: все обязательные колонки, достаточно строк.
+    sales_ok = "\n".join(
+        [
+            "region,product,amount,quantity",
+            "north,widget,120.5,3",
+            "north,gadget,80.0,2",
+            "south,widget,200.0,5",
+            "south,gadget,60.0,1",
+            "west,widget,150.0,4",
+            "west,gadget,90.0,2",
+        ]
+    ) + "\n"
+
+    # Битый датасет: отсутствует колонка amount, поэтому quality-check вернёт FAILED.
+    sales_broken = "\n".join(
+        [
+            "region,product,quantity",
+            "north,widget,3",
+            "south,gadget,1",
+        ]
+    ) + "\n"
+
+    (root / "sales-ok.csv").write_text(sales_ok, encoding="utf-8")
+    (root / "sales-broken.csv").write_text(sales_broken, encoding="utf-8")
+
+    index = [
+        "<html><body><h1>Data Demo Datasets</h1><ul>",
+        '<li><a href="/sales-ok.csv">sales-ok.csv</a></li>',
+        '<li><a href="/sales-broken.csv">sales-broken.csv</a></li>',
+        "</ul></body></html>",
+    ]
+    (root / "index.html").write_text("\n".join(index) + "\n", encoding="utf-8")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-demo-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-demo-server
+  template:
+    metadata:
+      labels:
+        app: data-demo-server
+    spec:
+      volumes:
+        - name: demo-script
+          configMap:
+            name: data-demo-server-script
+        - name: demo-data
+          emptyDir: {}
+      containers:
+        - name: http-server
+          image: python:3.12-slim
+          command: [sh, -c]
+          args:
+            - |
+              set -eu
+              cp /config/prepare_datasets.py /srv/prepare_datasets.py
+              python /srv/prepare_datasets.py
+              cd /srv/data
+              python -m http.server 8000
+          ports:
+            - containerPort: 8000
+              name: http
+          volumeMounts:
+            - name: demo-script
+              mountPath: /config
+              readOnly: true
+            - name: demo-data
+              mountPath: /srv/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-demo-server
+spec:
+  selector:
+    app: data-demo-server
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

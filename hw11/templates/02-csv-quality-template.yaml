@@ -1,0 +1,83 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: csv-quality-template
+spec:
+  entrypoint: check-quality
+  templates:
+    - name: check-quality
+      inputs:
+        parameters:
+          - name: required-columns
+            description: Список обязательных колонок через запятую, например region,product,amount.
+          - name: min-rows
+            description: Минимально допустимое число строк с данными.
+        artifacts:
+          # CSV-датасет приходит от предыдущего шага в стандартный входной путь.
+          - name: dataset
+            path: /work/dataset.csv
+      container:
+        image: python:3.12-slim
+        command: [sh, -c]
+        args:
+          - |
+            set -eu
+            python - <<'PY'
+            import csv
+            from datetime import datetime, timezone
+            from pathlib import Path
+
+            dataset = Path("/work/dataset.csv")
+            required_raw = "{{inputs.parameters.required-columns}}"
+            min_rows = int("{{inputs.parameters.min-rows}}")
+
+            required = [c.strip() for c in required_raw.split(",") if c.strip()]
+
+            with dataset.open(newline="", encoding="utf-8") as fh:
+                reader = csv.reader(fh)
+                rows = list(reader)
+
+            header = rows[0] if rows else []
+            data_rows = rows[1:] if len(rows) > 1 else []
+            row_count = len(data_rows)
+
+            missing = [c for c in required if c not in header]
+            enough_rows = row_count >= min_rows
+            status = "OK" if (not missing and enough_rows) else "FAILED"
+            missing_value = ",".join(missing) if missing else "-"
+
+            Path("/tmp/quality-status.txt").write_text(status + "\n", encoding="utf-8")
+            Path("/tmp/row-count.txt").write_text(str(row_count) + "\n", encoding="utf-8")
+            Path("/tmp/missing-columns.txt").write_text(missing_value + "\n", encoding="utf-8")
+
+            report = [
+                "CSV data quality check",
+                f"Generated at: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+                f"Columns found: {','.join(header) if header else '-'}",
+                f"Required columns: {required_raw}",
+                f"Missing columns: {missing_value}",
+                f"Row count: {row_count}",
+                f"Min rows required: {min_rows}",
+                f"Status: {status}",
+            ]
+            Path("/work/quality-report.txt").write_text("\n".join(report) + "\n", encoding="utf-8")
+
+            print("\n".join(report))
+            PY
+
+            # Шаг не падает: даже при FAILED пайплайн должен собрать диагностический отчёт.
+            exit 0
+      outputs:
+        parameters:
+          - name: quality-status
+            valueFrom:
+              path: /tmp/quality-status.txt
+          - name: row-count
+            valueFrom:
+              path: /tmp/row-count.txt
+          - name: missing-columns
+            valueFrom:
+              path: /tmp/missing-columns.txt
+        artifacts:
+          - name: quality-report
+            path: /work/quality-report.txt

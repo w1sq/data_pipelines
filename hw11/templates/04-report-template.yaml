@@ -1,0 +1,86 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: report-template
+spec:
+  entrypoint: generate-report
+  templates:
+    - name: generate-report
+      inputs:
+        parameters:
+          - name: pipeline-name
+            description: Логическое имя пайплайна/датасета.
+          - name: quality-status
+            description: Итог проверки качества данных.
+          - name: row-count
+            description: Число строк в датасете.
+          - name: missing-columns
+            description: Список отсутствующих обязательных колонок.
+          - name: groups-count
+            description: Число групп после агрегации.
+          - name: agg
+            description: Применённая функция агрегации.
+        artifacts:
+          - name: quality-report
+            path: /work/quality-report.txt
+          - name: aggregated
+            path: /work/aggregated.csv
+      container:
+        image: python:3.12-slim
+        command: [sh, -c]
+        args:
+          - |
+            set -eu
+            python - <<'PY'
+            from datetime import datetime, timezone
+            from pathlib import Path
+
+            status = "{{inputs.parameters.quality-status}}"
+            summary = (
+                "Датасет прошёл проверку качества и успешно агрегирован."
+                if status == "OK"
+                else "Датасет не прошёл проверку качества, отчёт собран для диагностики."
+            )
+
+            quality_report = Path("/work/quality-report.txt").read_text(encoding="utf-8")
+            aggregated = Path("/work/aggregated.csv").read_text(encoding="utf-8")
+
+            final = Path("/work/final-report.md")
+            final.write_text(
+                "\n".join(
+                    [
+                        "# Data Pipeline Report",
+                        "",
+                        f"- Pipeline: {{inputs.parameters.pipeline-name}}",
+                        f"- Quality status: {status}",
+                        f"- Row count: {{inputs.parameters.row-count}}",
+                        f"- Missing columns: {{inputs.parameters.missing-columns}}",
+                        f"- Aggregation: {{inputs.parameters.agg}}",
+                        f"- Groups: {{inputs.parameters.groups-count}}",
+                        f"- Generated at: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+                        "",
+                        summary,
+                        "",
+                        "## Quality check",
+                        "",
+                        "```",
+                        quality_report.rstrip(),
+                        "```",
+                        "",
+                        "## Aggregated result",
+                        "",
+                        "```",
+                        aggregated.rstrip(),
+                        "```",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            print(final.read_text(encoding="utf-8"))
+            PY
+      outputs:
+        artifacts:
+          # Финальный отчёт удобно скачивать как markdown-артефакт.
+          - name: final-report
+            path: /work/final-report.md

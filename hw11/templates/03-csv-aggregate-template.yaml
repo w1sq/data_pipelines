@@ -1,0 +1,80 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: csv-aggregate-template
+spec:
+  entrypoint: aggregate-csv
+  templates:
+    - name: aggregate-csv
+      inputs:
+        parameters:
+          - name: group-by
+            description: Колонка, по которой группируем строки, например region.
+          - name: value-column
+            description: Числовая колонка для агрегации, например amount.
+          - name: agg
+            description: Функция агрегации - sum, avg или count.
+        artifacts:
+          - name: dataset
+            path: /work/dataset.csv
+      container:
+        image: python:3.12-slim
+        command: [sh, -c]
+        args:
+          - |
+            set -eu
+            python - <<'PY'
+            import csv
+            from collections import defaultdict
+            from pathlib import Path
+
+            dataset = Path("/work/dataset.csv")
+            group_by = "{{inputs.parameters.group-by}}"
+            value_column = "{{inputs.parameters.value-column}}"
+            agg = "{{inputs.parameters.agg}}".lower()
+
+            with dataset.open(newline="", encoding="utf-8") as fh:
+                rows = list(csv.DictReader(fh))
+
+            sums = defaultdict(float)
+            counts = defaultdict(int)
+
+            for row in rows:
+                # Шаблон устойчив: отсутствующая колонка группировки даёт группу ALL.
+                key = row.get(group_by) or "ALL"
+                counts[key] += 1
+                raw = row.get(value_column, "")
+                try:
+                    sums[key] += float(raw)
+                except (TypeError, ValueError):
+                    # Нечисловое или отсутствующее значение трактуем как 0.
+                    pass
+
+            def aggregate(key):
+                if agg == "count":
+                    return counts[key]
+                if agg == "avg":
+                    return round(sums[key] / counts[key], 4) if counts[key] else 0
+                return round(sums[key], 4)
+
+            out = Path("/work/aggregated.csv")
+            with out.open("w", newline="", encoding="utf-8") as fh:
+                writer = csv.writer(fh)
+                writer.writerow([group_by, f"{agg}_{value_column}", "row_count"])
+                for key in sorted(counts):
+                    writer.writerow([key, aggregate(key), counts[key]])
+
+            Path("/tmp/groups-count.txt").write_text(str(len(counts)) + "\n", encoding="utf-8")
+
+            print(f"Aggregation: {agg}({value_column}) grouped by {group_by}")
+            print(out.read_text(encoding="utf-8"))
+            PY
+      outputs:
+        parameters:
+          - name: groups-count
+            valueFrom:
+              path: /tmp/groups-count.txt
+        artifacts:
+          # Агрегированный CSV отдаём как артефакт для отчёта или дальнейшей обработки.
+          - name: aggregated
+            path: /work/aggregated.csv

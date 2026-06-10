@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: http-fetch-template
+spec:
+  entrypoint: http-fetch
+  templates:
+    - name: http-fetch
+      inputs:
+        parameters:
+          - name: source-url
+            description: URL источника данных (CSV, JSON или любой другой файл).
+          - name: output-filename
+            description: Имя файла внутри рабочего каталога контейнера.
+      container:
+        image: python:3.12-slim
+        command: [sh, -c]
+        args:
+          - |
+            set -eu
+            mkdir -p /work
+
+            python - <<'PY'
+            import pathlib
+            import urllib.request
+
+            url = "{{inputs.parameters.source-url}}"
+            target = pathlib.Path("/work/{{inputs.parameters.output-filename}}")
+            target.parent.mkdir(parents=True, exist_ok=True)
+
+            print(f"Fetching data from: {url}")
+            with urllib.request.urlopen(url) as response:
+                data = response.read()
+
+            target.write_bytes(data)
+            size = target.stat().st_size
+
+            # Параметр размера пригодится следующим шагам и для логов/алертов.
+            pathlib.Path("/tmp/content-size.txt").write_text(str(size), encoding="utf-8")
+
+            print(f"Saved data to {target}")
+            print(f"Downloaded size: {size} bytes")
+            PY
+
+            ls -lh /work
+      outputs:
+        parameters:
+          - name: content-size
+            valueFrom:
+              path: /tmp/content-size.txt
+        artifacts:
+          # Скачанный файл возвращаем как универсальный артефакт для любого следующего шага.
+          - name: fetched-data
+            path: /work/{{inputs.parameters.output-filename}}

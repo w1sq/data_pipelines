@@ -1,0 +1,96 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: data-pipeline-
+spec:
+  entrypoint: data-pipeline-dag
+  arguments:
+    parameters:
+      # Значения по умолчанию нужны для демонстрации и переопределяются через argo submit -p.
+      - name: source-url
+        value: http://data-demo-server.argo.svc.cluster.local:8000/sales-ok.csv
+      - name: dataset-filename
+        value: sales-ok.csv
+      - name: pipeline-name
+        value: SalesAnalytics
+      - name: required-columns
+        value: region,product,amount
+      - name: min-rows
+        value: "5"
+      - name: group-by
+        value: region
+      - name: value-column
+        value: amount
+      - name: agg
+        value: sum
+  templates:
+    - name: data-pipeline-dag
+      dag:
+        tasks:
+          - name: fetch-data
+            templateRef:
+              name: http-fetch-template
+              template: http-fetch
+            arguments:
+              parameters:
+                - name: source-url
+                  value: "{{workflow.parameters.source-url}}"
+                - name: output-filename
+                  value: "{{workflow.parameters.dataset-filename}}"
+
+          - name: check-quality
+            depends: fetch-data
+            templateRef:
+              name: csv-quality-template
+              template: check-quality
+            arguments:
+              parameters:
+                - name: required-columns
+                  value: "{{workflow.parameters.required-columns}}"
+                - name: min-rows
+                  value: "{{workflow.parameters.min-rows}}"
+              artifacts:
+                - name: dataset
+                  from: "{{tasks.fetch-data.outputs.artifacts.fetched-data}}"
+
+          - name: aggregate-data
+            depends: fetch-data
+            templateRef:
+              name: csv-aggregate-template
+              template: aggregate-csv
+            arguments:
+              parameters:
+                - name: group-by
+                  value: "{{workflow.parameters.group-by}}"
+                - name: value-column
+                  value: "{{workflow.parameters.value-column}}"
+                - name: agg
+                  value: "{{workflow.parameters.agg}}"
+              artifacts:
+                - name: dataset
+                  from: "{{tasks.fetch-data.outputs.artifacts.fetched-data}}"
+
+          - name: generate-report
+            depends: check-quality && aggregate-data
+            templateRef:
+              name: report-template
+              template: generate-report
+            arguments:
+              parameters:
+                - name: pipeline-name
+                  value: "{{workflow.parameters.pipeline-name}}"
+                - name: quality-status
+                  value: "{{tasks.check-quality.outputs.parameters.quality-status}}"
+                - name: row-count
+                  value: "{{tasks.check-quality.outputs.parameters.row-count}}"
+                - name: missing-columns
+                  value: "{{tasks.check-quality.outputs.parameters.missing-columns}}"
+                - name: groups-count
+                  value: "{{tasks.aggregate-data.outputs.parameters.groups-count}}"
+                - name: agg
+                  value: "{{workflow.parameters.agg}}"
+              artifacts:
+                - name: quality-report
+                  from: "{{tasks.check-quality.outputs.artifacts.quality-report}}"
+                - name: aggregated
+                  from: "{{tasks.aggregate-data.outputs.artifacts.aggregated}}"
