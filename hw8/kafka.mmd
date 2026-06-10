@@ -1,0 +1,32 @@
+flowchart LR
+    SRC[Sources:<br/>editors, legislative feeds,<br/>court registries, edition systems] --> P[Kafka producers<br/>idempotent, acks=all]
+
+    P --> T1[(cp.docs.law.raw.v1<br/>24 partitions<br/>key=document_id<br/>delete, 7d)]
+    P --> T2[(cp.docs.court.raw.v1<br/>24 partitions<br/>key=case_id<br/>delete, 7d)]
+    P --> T3[(cp.docs.edition.raw.v1<br/>12 partitions<br/>key=base_document_id<br/>delete, 7d)]
+
+    T1 --> G1[cg-normalizer]
+    T2 --> G1
+    T3 --> G1
+
+    G1 --> T4[(cp.docs.normalized.v1<br/>24 partitions<br/>key=document_id<br/>delete, 30d)]
+
+    T4 --> G2[cg-versioning]
+    T4 --> G3[cg-relation-extractor]
+    T4 --> G4[cg-search-indexer]
+    T4 --> G5[cg-analytics-sink]
+
+    G2 --> T5[(cp.docs.current-state.v1<br/>12 partitions<br/>key=document_id<br/>compact)]
+    G2 --> T6[(cp.docs.edition-events.v1<br/>12 partitions<br/>key=base_document_id<br/>compact,delete 180d)]
+
+    G3 --> T7[(cp.docs.references.v1<br/>12 partitions<br/>key=source_document_id<br/>delete, 90d)]
+    G4 --> S[(Search index<br/>OpenSearch / Elasticsearch)]
+    G5 --> D[(Data Lake / DWH)]
+
+    T1 -. invalid .-> Q[(cp.docs.dlq.v1<br/>4 partitions<br/>delete, 30d)]
+    T2 -. invalid .-> Q
+    T3 -. invalid .-> Q
+    T4 -. invalid .-> Q
+
+    Q --> G6[cg-replay-recovery]
+    G6 -. replay .-> T4
