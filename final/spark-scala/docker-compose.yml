@@ -1,0 +1,21 @@
+services:
+  spark-job:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: spark-session-metrics:local
+    container_name: spark-session-metrics
+    volumes:
+      - ../sessions:/data/sessions:ro
+      - ./output:/data/output
+    command:
+      - /opt/spark/bin/spark-submit
+      - --class
+      - datapipelines.SessionMetricsApp
+      - --master
+      - "local[4]"
+      - /opt/app/app.jar
+      - --input
+      - /data/sessions
+      - --output
+      - /data/output

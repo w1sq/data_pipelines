@@ -1,0 +1,5 @@
+/target/
+/output/
+/.m2/
+/.idea/
+*.iml
