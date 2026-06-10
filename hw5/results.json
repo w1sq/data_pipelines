@@ -1,0 +1,307 @@
+{
+  "broadcast": {
+    "baseline_shuffle": {
+      "time_s": 1.404,
+      "metrics": {
+        "shuffleReadBytes": 472,
+        "shuffleWriteBytes": 472,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 2863,
+        "inputBytes": 0,
+        "numTasks": 17
+      }
+    },
+    "optimized_broadcast": {
+      "time_s": 0.0871,
+      "metrics": {
+        "shuffleReadBytes": 472,
+        "shuffleWriteBytes": 472,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 63,
+        "inputBytes": 0,
+        "numTasks": 17
+      }
+    }
+  },
+  "skew": {
+    "baseline": {
+      "time_s": 0.9293,
+      "metrics": {
+        "shuffleReadBytes": 169528,
+        "shuffleWriteBytes": 169528,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 4629,
+        "inputBytes": 0,
+        "numTasks": 209
+      }
+    },
+    "optimized_salted": {
+      "time_s": 0.6518,
+      "metrics": {
+        "shuffleReadBytes": 169528,
+        "shuffleWriteBytes": 169528,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 2964,
+        "inputBytes": 0,
+        "numTasks": 209
+      }
+    }
+  },
+  "repartition": {
+    "baseline": {
+      "time_s": 0.5688,
+      "metrics": {
+        "shuffleReadBytes": 51174,
+        "shuffleWriteBytes": 51174,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 2988,
+        "inputBytes": 0,
+        "numTasks": 209
+      },
+      "num_partitions": 8
+    },
+    "repartition": {
+      "2": {
+        "time_s": 2.3168,
+        "metrics": {
+          "shuffleReadBytes": 568346,
+          "shuffleWriteBytes": 568346,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 15267,
+          "inputBytes": 0,
+          "numTasks": 211
+        },
+        "num_partitions": 2
+      },
+      "8": {
+        "time_s": 1.3984,
+        "metrics": {
+          "shuffleReadBytes": 663430,
+          "shuffleWriteBytes": 663430,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 9961,
+          "inputBytes": 0,
+          "numTasks": 217
+        },
+        "num_partitions": 8
+      },
+      "16": {
+        "time_s": 0.7679,
+        "metrics": {
+          "shuffleReadBytes": 788038,
+          "shuffleWriteBytes": 788038,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 4759,
+          "inputBytes": 0,
+          "numTasks": 225
+        },
+        "num_partitions": 16
+      },
+      "50": {
+        "time_s": 1.0138,
+        "metrics": {
+          "shuffleReadBytes": 1316746,
+          "shuffleWriteBytes": 1316746,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 6635,
+          "inputBytes": 0,
+          "numTasks": 259
+        },
+        "num_partitions": 50
+      },
+      "200": {
+        "time_s": 2.5563,
+        "metrics": {
+          "shuffleReadBytes": 3584646,
+          "shuffleWriteBytes": 3584646,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 18127,
+          "inputBytes": 0,
+          "numTasks": 409
+        },
+        "num_partitions": 200
+      },
+      "500": {
+        "time_s": 6.2473,
+        "metrics": {
+          "shuffleReadBytes": 7744446,
+          "shuffleWriteBytes": 7744446,
+          "memoryBytesSpilled": 54525792,
+          "diskBytesSpilled": 32258,
+          "executorRunTime": 45284,
+          "inputBytes": 0,
+          "numTasks": 709
+        },
+        "num_partitions": 500
+      },
+      "1000": {
+        "time_s": 10.7214,
+        "metrics": {
+          "shuffleReadBytes": 15477446,
+          "shuffleWriteBytes": 15477446,
+          "memoryBytesSpilled": 218103168,
+          "diskBytesSpilled": 129032,
+          "executorRunTime": 79892,
+          "inputBytes": 0,
+          "numTasks": 1209
+        },
+        "num_partitions": 1000
+      }
+    },
+    "coalesce": {
+      "1": {
+        "time_s": 0.286,
+        "metrics": {
+          "shuffleReadBytes": 0,
+          "shuffleWriteBytes": 0,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 204,
+          "inputBytes": 0,
+          "numTasks": 1
+        },
+        "num_partitions": 1
+      },
+      "2": {
+        "time_s": 0.3384,
+        "metrics": {
+          "shuffleReadBytes": 21378,
+          "shuffleWriteBytes": 21378,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 1168,
+          "inputBytes": 0,
+          "numTasks": 203
+        },
+        "num_partitions": 2
+      },
+      "4": {
+        "time_s": 0.2614,
+        "metrics": {
+          "shuffleReadBytes": 31310,
+          "shuffleWriteBytes": 31310,
+          "memoryBytesSpilled": 0,
+          "diskBytesSpilled": 0,
+          "executorRunTime": 1192,
+          "inputBytes": 0,
+          "numTasks": 205
+        },
+        "num_partitions": 4
+      }
+    }
+  },
+  "udf": {
+    "baseline_python_udf": {
+      "time_s": 3.2026,
+      "metrics": {
+        "shuffleReadBytes": 2344,
+        "shuffleWriteBytes": 2344,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 23837,
+        "inputBytes": 0,
+        "numTasks": 208
+      }
+    },
+    "optimized_native": {
+      "time_s": 0.4748,
+      "metrics": {
+        "shuffleReadBytes": 2344,
+        "shuffleWriteBytes": 2344,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 1882,
+        "inputBytes": 0,
+        "numTasks": 208
+      }
+    }
+  },
+  "cache": {
+    "baseline_recompute": {
+      "time_s": 0.9398,
+      "metrics": {
+        "shuffleReadBytes": 64458,
+        "shuffleWriteBytes": 64458,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 4041,
+        "inputBytes": 0,
+        "numTasks": 427
+      }
+    },
+    "optimized_cache": {
+      "time_s": 1.9899,
+      "metrics": {
+        "shuffleReadBytes": 64930,
+        "shuffleWriteBytes": 64930,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 12306,
+        "inputBytes": 505205952,
+        "numTasks": 436
+      }
+    }
+  },
+  "pushdown": {
+    "baseline_full_read": {
+      "time_s": 0.6106,
+      "metrics": {
+        "shuffleReadBytes": 472,
+        "shuffleWriteBytes": 472,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 3248,
+        "inputBytes": 11908528,
+        "numTasks": 10
+      }
+    },
+    "optimized_pruned": {
+      "time_s": 0.2061,
+      "metrics": {
+        "shuffleReadBytes": 472,
+        "shuffleWriteBytes": 472,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 947,
+        "inputBytes": 11908528,
+        "numTasks": 10
+      }
+    }
+  },
+  "aqe": {
+    "baseline_aqe_off": {
+      "time_s": 2.8632,
+      "metrics": {
+        "shuffleReadBytes": 1267089,
+        "shuffleWriteBytes": 1267089,
+        "memoryBytesSpilled": 0,
+        "diskBytesSpilled": 0,
+        "executorRunTime": 13968,
+        "inputBytes": 0,
+        "numTasks": 225
+      }
+    },
+    "optimized_aqe_on": {
+      "time_s": 3.6757,
+      "metrics": {
+        "shuffleReadBytes": 1255348,
+        "shuffleWriteBytes": 1255348,
+        "memoryBytesSpilled": 157285200,
+        "diskBytesSpilled": 1175217,
+        "executorRunTime": 12456,
+        "inputBytes": 0,
+        "numTasks": 75
+      }
+    }
+  }
+}
